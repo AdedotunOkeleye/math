@@ -1,0 +1,47 @@
+version: 2.1
+
+jobs:
+  build:
+    working_directory: ~/public
+    docker:
+      - image: cimg/node:24.11.0  # ✅ Updated image name
+
+    steps:
+      - checkout
+
+      - run:
+          name: Update npm
+          command: npm install -g npm@latest
+
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+
+      - run:
+          name: Install dependencies
+          command: npm ci
+
+      - run:
+          name: Fix Jest permissions
+          command: chmod +x ./node_modules/.bin/jest
+
+      - run:
+          name: Run tests
+          command: npm test
+
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+
+      
+
+      - store_artifacts:
+          path: test-results.xml
+          prefix: tests
+
+      - store_artifacts:
+          path: coverage
+          prefix: coverage
+
+      - store_test_results:
+          path: tes t-results.xml
