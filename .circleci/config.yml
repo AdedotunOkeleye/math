@@ -44,4 +44,13 @@ jobs:
           prefix: coverage
 
       - store_test_results:
+          path: test-results.xml
+
+
+
+      - store_artifacts:
+          path: coverage
+          prefix: coverage
+
+      - store_test_results:
           path: tes t-results.xml
