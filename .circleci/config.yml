@@ -44,11 +44,11 @@ jobs:
           prefix: coverage
 
       - store_test_results:
-          path: test-results.xml
+          path: tes t-results.xml
 
 
 
-      - store_artifacts:
+ - store_artifacts:
           path: coverage
           prefix: coverage
 
