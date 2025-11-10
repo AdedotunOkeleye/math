@@ -2,9 +2,9 @@ version: 2.1
 
 jobs:
   build:
-    working_directory: ~/public
     docker:
-      - image: cimg/node:24.11.0  # ✅ Updated image name
+      - image: cimg/node:24.11.0
+    working_directory: ~/project
 
     steps:
       - checkout
@@ -21,10 +21,6 @@ jobs:
           command: npm ci
 
       - run:
-          name: Fix Jest permissions
-          command: chmod +x ./node_modules/.bin/jest
-
-      - run:
           name: Run tests
           command: npm test
 
@@ -32,8 +28,6 @@ jobs:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
-
-      
 
       - store_artifacts:
           path: test-results.xml
@@ -44,4 +38,37 @@ jobs:
           prefix: coverage
 
       - store_test_results:
-          path: tes t-results.xml
+          path: test-results.xml
+
+
+  # 🐳 Deploy job using machine executor (so Docker works)
+  deploy:
+    machine:
+      image: ubuntu-2204:current   # ✅ gives full VM with Docker pre-installed
+    steps:
+      - checkout
+
+      - run:
+          name: Build Docker image
+          command: |
+            docker build -t adedotunokeleye/math:latest .
+
+      - run:
+          name: Push Docker image to Docker Hub
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
+            docker push  adedotunokeleye/math:latest
+
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          context: dockerhub-creds
+          filters:
+            branches:
+              only: main
