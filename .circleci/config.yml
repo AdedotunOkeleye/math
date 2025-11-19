@@ -51,13 +51,13 @@ jobs:
       - run:
           name: Build Docker image
           command: |
-            docker build -t dancraftdocker/maths-circle:latest .
+            docker build -t dancraftdocker/math:latest .
 
       - run:
           name: Push Docker image to Docker Hub
           command: |
             echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
-            docker push dancraftdocker/maths-circle:latest
+            docker push adedotunokeleye/math:latest
 
 
 workflows:
@@ -68,7 +68,6 @@ workflows:
       - deploy:
           requires:
             - build
-          context: dockerhub-creds
           filters:
             branches:
               only: main
